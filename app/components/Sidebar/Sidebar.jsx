@@ -72,7 +72,7 @@ const Sidebar = () => {
     },
   ];
   return (
-    <nav className="w-60 h-screen bg-gray-900 px-2 scroll-auto">
+    <nav className="fixed w-60 h-screen bg-gray-900 px-2 scroll-auto">
       <Search />
       <MenuItem items={items} />
     </nav>

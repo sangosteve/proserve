@@ -5,7 +5,7 @@ import "../../globals.css";
 import { Separator } from "../../components/ui/separator";
 import { Label } from "../../components/ui/label";
 import { Input } from "../../components/ui/input";
-import { Checkbox } from "app/components/ui/checkbox";
+import { Checkbox } from "../../components/ui/checkbox";
 import Image from "next/image";
 import { signIn } from "next-auth/react";
 const signin = () => {
@@ -16,7 +16,7 @@ const signin = () => {
           Welcome back!Sign In
         </h5>
         <Button
-          onClick={() => signIn("google", {})}
+          onClick={() => signIn("google", { redirect: true })}
           variant="outline"
           className="w-full mt-6"
         >
