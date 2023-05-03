@@ -25,13 +25,13 @@ const Navbar = () => {
         </div> */}
         <DropdownMenu>
           <DropdownMenuTrigger>
-            <div className="h-9 w-9 rounded-full bg-gray-500 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-full bg-gray-500 flex items-center justify-center">
               {/* <p className="text-white">{session?.user?.name?.charAt(0)}</p> */}
               <Image
                 style={{ objectFit: "cover", borderRadius: "50%" }}
                 src={session?.user?.image}
-                width={56}
-                height={56}
+                width={40}
+                height={40}
               />
             </div>
           </DropdownMenuTrigger>
