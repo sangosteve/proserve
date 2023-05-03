@@ -38,13 +38,17 @@ model Session {
 }
 
 model User {
-  id            String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  accounts      Account[]
-  sessions      Session[]
+  id                    String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  name                  String?
+  email                 String?      @unique
+  emailVerified         DateTime?
+  image                 String?
+  accounts              Account[]
+  sessions              Session[]
+  requests              Request[]    @relation(name: "Requester")
+  assignee              Request[]    @relation(name: "Assignee")
+  work_order_assignees  Work_Order[] @relation(name: "Work_Order_Assignee")
+  work_order_requesters Work_Order[] @relation(name: "Work_Order_Requester")
 }
 
 model VerificationToken {
@@ -53,4 +57,51 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model Priority {
+  id          String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  description String
+  created     DateTime     @default(now()) @db.Date
+  requests    Request[]
+  work_orders Work_Order[]
+}
+
+model Status {
+  id          String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  description String
+  created     DateTime     @default(now()) @db.Date
+  requests    Request[]
+  work_orders Work_Order[]
+}
+
+model Account_Type {
+  id          String @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  description String
+}
+
+model Request {
+  id           String       @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title        String
+  description  String
+  created      DateTime     @default(now()) @db.Date
+  due_date     DateTime     @default(now()) @db.Date
+  priority_id  Priority     @relation(fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "priority_id_foreign")
+  status_id    Status       @relation(fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "status_id_foreign")
+  assignee_id  User         @relation(name: "Assignee", fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "assignee_id_foreign")
+  requester_id User         @relation(name: "Requester", fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "requester_id_foreign")
+  work_orders  Work_Order[]
+}
+
+model Work_Order {
+  id           String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title        String
+  description  String
+  created      DateTime @default(now()) @db.Date
+  due_date     DateTime @default(now()) @db.Date
+  request_id   Request  @relation(fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "work_order_request_id_foreign")
+  priority_id  Priority @relation(fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "priority_id_foreign")
+  status_id    Status   @relation(fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "status_id_foreign")
+  assignee_id  User     @relation(name: "Work_Order_Assignee", fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "assignee_id_foreign")
+  requester_id User     @relation(name: "Work_Order_Requester", fields: [id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "work_order_requester_id_foreign")
 }
