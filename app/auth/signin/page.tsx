@@ -16,7 +16,7 @@ const signin = () => {
           Welcome back!Sign In
         </h5>
         <Button
-          onClick={() => signIn("google", { redirect: true })}
+          onClick={() => signIn("google", { redirect: true, callbackUrl: "/" })}
           variant="outline"
           className="w-full mt-6"
         >

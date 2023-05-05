@@ -1,8 +1,9 @@
 import NextAuth from "next-auth";
+import { NextResponse, NextRequest } from "next/server";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
-
+import { redirect } from "next/navigation";
 //const handler = NextAuth({});
 const prisma = new PrismaClient();
 export const authOptions = {
@@ -25,6 +26,15 @@ export const authOptions = {
     },
     async redirect({ url, baseUrl }) {
       return baseUrl;
+    },
+    async jwt({ token, user, account, profile, isNewUser }) {
+      // if (isNewUser) token.isNewUser = isNewUser;
+      if (isNewUser) {
+        // Redirect new users to onboarding
+        redirect("/auth/new-user");
+      }
+
+      return token;
     },
   },
 };
