@@ -32,6 +32,7 @@ const Navbar = () => {
                 src={session?.user?.image}
                 width={40}
                 height={40}
+                alt="avatar"
               />
             </div>
           </DropdownMenuTrigger>

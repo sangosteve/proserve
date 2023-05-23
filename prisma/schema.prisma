@@ -54,15 +54,25 @@ model VerificationToken {
 }
 
 model Priority {
-  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   description String
-  created     DateTime @default(now()) @db.Date
+  created     DateTime  @default(now()) @db.Date
+  Request     Request[]
 }
 
 model Status {
   id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   description String
   created     DateTime @default(now()) @db.Date
+}
+
+model Request {
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  title       String
+  description String
+  created     DateTime  @default(now()) @db.Date
+  priorityId  String    @db.Uuid
+  priority    Priority? @relation(fields: [priorityId], references: [id], onDelete: Cascade)
 }
 
 model Account_Type {

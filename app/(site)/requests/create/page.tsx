@@ -1,9 +1,11 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { redirect, useRouter } from "next/navigation";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Textarea } from "../../../components/ui/textarea";
+import { Toaster } from "../../../components/ui/toaster";
+import { useToast } from "../../../hooks/ui/use-toast";
 import {
   Select,
   SelectContent,
@@ -21,7 +23,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../../../components/ui/form";
-import Link from "next/link";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 
@@ -32,28 +34,56 @@ const formSchema = z.object({
   description: z.string().min(2, {
     message: "Password must be at least 2 characters.",
   }),
-  priority: z.string({
+  priorityId: z.string({
     required_error: "Please select priority.",
   }),
 });
 
 const CreateRequests = () => {
+  const { toast } = useToast();
+  const router = useRouter();
+  const [priorities, setPriorities] = useState([]);
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       description: "",
+      priorityId: "",
     },
   });
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    const result = await fetch("http://localhost:3000/api/request/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(values),
+    })
+      .then(() => {
+        toast({
+          title: "Success",
+          description: "Request created successfully.",
+        });
+      })
+      .then(() => {
+        router.push("/requests");
+      });
   }
+
+  async function fetchPriorities() {
+    const res = await fetch("http://localhost:3000/api/priority", {
+      method: "GET",
+    });
+    const data = await res.json();
+    setPriorities(data);
+  }
+
+  useEffect(() => {
+    fetchPriorities();
+  }, [priorities]);
   return (
     <div className="p-10 flex flex-col grow">
+      <Toaster />
       <div className="w-[400px]">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
@@ -91,7 +121,7 @@ const CreateRequests = () => {
             />
             <FormField
               control={form.control}
-              name="priority"
+              name="priorityId"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Priority</FormLabel>
@@ -105,14 +135,15 @@ const CreateRequests = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="low">Low</SelectItem>
-                      <SelectItem value="medium">Medium</SelectItem>
-                      <SelectItem value="high">High</SelectItem>
+                      {priorities?.map((priority) => (
+                        <SelectItem value={priority?.id}>
+                          {priority?.description?.toUpperCase()}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                   <FormDescription>
-                    You can manage email addresses in your{" "}
-                    <Link href="/examples/forms">email settings</Link>.
+                    You can manage email addresses in your
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
