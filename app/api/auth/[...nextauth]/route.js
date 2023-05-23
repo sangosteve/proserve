@@ -28,11 +28,7 @@ export const authOptions = {
       return baseUrl;
     },
     async jwt({ token, user, account, profile, isNewUser }) {
-      // if (isNewUser) token.isNewUser = isNewUser;
-      if (isNewUser) {
-        // Redirect new users to onboarding
-        redirect("/auth/new-user");
-      }
+      if (isNewUser) token.isNewUser = isNewUser;
 
       return token;
     },
