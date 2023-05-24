@@ -5,8 +5,6 @@ export async function GET(request, { params }) {
   if (params) {
     console.log(params);
   }
-  const result = await prisma.request.findMany({
-    include: { priority: true, approver: true },
-  });
+  const result = await prisma.user.findMany();
   return new Response(JSON.stringify(result));
 }

@@ -43,6 +43,8 @@ model User {
   organizations Organization[]
   sessions      Session[]
   owners        Workspace[]
+  approvers     Request[]      @relation("approvers")
+  // requesters    Request[]
 }
 
 model VerificationToken {
@@ -60,19 +62,26 @@ model Priority {
   Request     Request[]
 }
 
-model Status {
-  id          String   @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+model Request_Status {
+  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   description String
-  created     DateTime @default(now()) @db.Date
+  created     DateTime  @default(now()) @db.Date
+  requests    Request[]
 }
 
 model Request {
-  id          String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id          String          @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   title       String
   description String
-  created     DateTime  @default(now()) @db.Date
-  priorityId  String    @db.Uuid
-  priority    Priority? @relation(fields: [priorityId], references: [id], onDelete: Cascade)
+  created     DateTime        @default(now()) @db.Date
+  priorityId  String          @db.Uuid
+  priority    Priority?       @relation(fields: [priorityId], references: [id], onDelete: Cascade)
+  statusId    String          @db.Uuid
+  status      Request_Status? @relation(fields: [statusId], references: [id], onDelete: Cascade)
+  approverId  String          @db.Uuid
+  approver    User            @relation(fields: [approverId], references: [id], onDelete: Cascade, name: "approvers")
+  // requesterId String    @db.Uuid
+  // requester   User      @relation(fields: [requesterId], references: [id], onDelete: Cascade)
 }
 
 model Account_Type {

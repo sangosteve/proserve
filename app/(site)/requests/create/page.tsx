@@ -1,6 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import Image from "next/image";
 import { redirect, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { PriorityType } from "../../../../types";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Textarea } from "../../../components/ui/textarea";
@@ -37,12 +40,23 @@ const formSchema = z.object({
   priorityId: z.string({
     required_error: "Please select priority.",
   }),
+  approverId: z.string({
+    required_error: "Please select priority.",
+  }),
 });
 
 const CreateRequests = () => {
   const { toast } = useToast();
   const router = useRouter();
   const [priorities, setPriorities] = useState([]);
+  const [users, setUsers] = useState([]);
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      redirect("/auth/signin");
+    },
+  });
+  console.log(session?.user);
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,6 +64,7 @@ const CreateRequests = () => {
       title: "",
       description: "",
       priorityId: "",
+      approverId: "",
     },
   });
 
@@ -77,10 +92,18 @@ const CreateRequests = () => {
     const data = await res.json();
     setPriorities(data);
   }
+  async function fetchUsers() {
+    const res = await fetch("http://localhost:3000/api/user", {
+      method: "GET",
+    });
+    const data = await res.json();
+    setUsers(data);
+  }
 
   useEffect(() => {
     fetchPriorities();
-  }, [priorities]);
+    fetchUsers();
+  }, [priorities, users]);
   return (
     <div className="p-10 flex flex-col grow">
       <Toaster />
@@ -135,9 +158,51 @@ const CreateRequests = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {priorities?.map((priority) => (
+                      {priorities?.map((priority: PriorityType) => (
                         <SelectItem value={priority?.id}>
                           {priority?.description?.toUpperCase()}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormDescription>
+                    You can manage email addresses in your
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="approverId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Approver</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a verified email to display" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {users?.map((user) => (
+                        <SelectItem value={user?.id}>
+                          <div className="flex items-center gap-1">
+                            <Image
+                              style={{
+                                objectFit: "cover",
+                                borderRadius: "50%",
+                              }}
+                              src={user?.image}
+                              width={24}
+                              height={24}
+                              alt="avatar"
+                            />
+                            {user?.name}
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>

@@ -45,7 +45,7 @@ const requests = () => {
       <div>
         <Button onClick={() => router.push("/requests/create")}>Create</Button>
       </div>
-      <div className="w-[600px]">
+      <div className="w-[720px]">
         <Table>
           <TableCaption>A list of your requests.</TableCaption>
           <TableHeader>
@@ -54,6 +54,7 @@ const requests = () => {
               <TableHead>Description</TableHead>
               <TableHead>Submitted Date</TableHead>
               <TableHead>Priority</TableHead>
+              <TableHead>Approver</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -63,6 +64,7 @@ const requests = () => {
                 <TableCell>{request.description}</TableCell>
                 <TableCell>{format(new Date(request.created), "PP")}</TableCell>
                 <TableCell>{request.priority.description}</TableCell>
+                <TableCell>{request.approver.name}</TableCell>
               </TableRow>
             ))}
           </TableBody>

@@ -9,7 +9,7 @@ export type RequestType = {
 };
 
 export type PriorityType = {
-  id: Key;
+  id: String;
   description: String;
   created: Date;
   Request: Request[];
