@@ -36,6 +36,10 @@ const requests = () => {
     console.log(requests);
   }
 
+  function navigateToPage(id) {
+    return router.push(`/requests/${id}`);
+  }
+
   useEffect(() => {
     fetchRequests();
   }, [requests]);
@@ -55,16 +59,22 @@ const requests = () => {
               <TableHead>Submitted Date</TableHead>
               <TableHead>Priority</TableHead>
               <TableHead>Approver</TableHead>
+              <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {requests.map((request: RequestType) => (
-              <TableRow key={request.id}>
+              <TableRow
+                className="hover:cursor-pointer hover:bg-white"
+                key={request.id}
+                onClick={() => navigateToPage(request.id)}
+              >
                 <TableCell className="font-medium">{request.title}</TableCell>
                 <TableCell>{request.description}</TableCell>
                 <TableCell>{format(new Date(request.created), "PP")}</TableCell>
                 <TableCell>{request.priority.description}</TableCell>
                 <TableCell>{request.approver.name}</TableCell>
+                <TableCell>{request.status}</TableCell>
               </TableRow>
             ))}
           </TableBody>

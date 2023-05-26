@@ -50,13 +50,13 @@ const CreateRequests = () => {
   const router = useRouter();
   const [priorities, setPriorities] = useState([]);
   const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { data: session, status } = useSession({
     required: true,
     onUnauthenticated() {
       redirect("/auth/signin");
     },
   });
-  console.log(session?.user);
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,20 +69,20 @@ const CreateRequests = () => {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values);
     const result = await fetch("http://localhost:3000/api/request/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(values),
-    })
-      .then(() => {
-        toast({
-          title: "Success",
-          description: "Request created successfully.",
-        });
-      })
-      .then(() => {
-        router.push("/requests");
+    }).then(() => {
+      toast({
+        title: "Success",
+        description: "Request created successfully.",
       });
+    });
+    // .then(() => {
+    //   router.push("/requests");
+    // });
   }
 
   async function fetchPriorities() {
@@ -98,12 +98,16 @@ const CreateRequests = () => {
     });
     const data = await res.json();
     setUsers(data);
+    setLoading(false);
+    console.log(users);
   }
 
   useEffect(() => {
     fetchPriorities();
     fetchUsers();
-  }, [priorities, users]);
+  }, [users]);
+
+  if (loading || status === "loading") return <div>Loading...</div>;
   return (
     <div className="p-10 flex flex-col grow">
       <Toaster />
@@ -189,8 +193,8 @@ const CreateRequests = () => {
                     </FormControl>
                     <SelectContent>
                       {users?.map((user) => (
-                        <SelectItem value={user?.id}>
-                          <div className="flex items-center gap-1">
+                        <SelectItem value={user.id}>
+                          <div className="flex items-center">
                             <Image
                               style={{
                                 objectFit: "cover",
@@ -201,7 +205,7 @@ const CreateRequests = () => {
                               height={24}
                               alt="avatar"
                             />
-                            {user?.name}
+                            {user.name}
                           </div>
                         </SelectItem>
                       ))}
