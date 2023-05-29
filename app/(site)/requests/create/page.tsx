@@ -69,7 +69,7 @@ const CreateRequests = () => {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    values.requesterId = "9d5b8dc9-5807-45ed-b4aa-c03f225a48c9";
     const result = await fetch("http://localhost:3000/api/request/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

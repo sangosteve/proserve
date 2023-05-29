@@ -83,9 +83,66 @@ const Update_Requests = ({ params }) => {
     e.preventDefault();
     console.log("onSubmit:", values);
   };
+
+  const saveWithoutUpdating = async () => {
+    const updatedValues = {
+      title: values.title,
+      description: values.description,
+      priorityId: values.priorityId,
+      approverId: values.approverId,
+    };
+    const res = await fetch(
+      `http://localhost:3000/api/request/edit/${params.id}`,
+      {
+        method: "POST",
+        body: JSON.stringify(updatedValues),
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    console.log(res);
+  };
+  const approveRequest = async () => {
+    const updatedValues = {
+      title: values.title,
+      description: values.description,
+      priorityId: values.priorityId,
+      approverId: values.approverId,
+      status: "APPROVED",
+    };
+    const res = await fetch(
+      `http://localhost:3000/api/request/edit/${params.id}`,
+      {
+        method: "POST",
+        body: JSON.stringify(updatedValues),
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    console.log(res);
+  };
+  const rejectRequest = async () => {
+    const updatedValues = {
+      title: values.title,
+      description: values.description,
+      priorityId: values.priorityId,
+      approverId: values.approverId,
+      status: "REJECTED",
+    };
+    const res = await fetch(
+      `http://localhost:3000/api/request/edit/${params.id}`,
+      {
+        method: "POST",
+        body: JSON.stringify(updatedValues),
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+
+    console.log(res);
+  };
   return (
     <div className="p-10 flex flex-col grow">
-      <div className="w-[400px]">
+      <div className="w-[600px]">
         <form onSubmit={onSubmit}>
           <div className="w-full flex  items-center justify-between">
             <div className="w-full px-2 flex flex-col items-start justify-start">
@@ -167,7 +224,15 @@ const Update_Requests = ({ params }) => {
               </Select>
             </div>
           </div>
-          <Button type="submit">Update Request</Button>
+          <div className="flex items-center justify-between mt-8">
+            <Button variant={"destructive"} onClick={rejectRequest}>
+              Reject Request
+            </Button>
+            <Button variant={"outline"} onClick={saveWithoutUpdating}>
+              Save Without Approving
+            </Button>
+            <Button onClick={approveRequest}>Approve Request</Button>
+          </div>
         </form>
       </div>
     </div>

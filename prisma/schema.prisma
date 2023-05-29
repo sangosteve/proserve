@@ -44,7 +44,7 @@ model User {
   sessions      Session[]
   owners        Workspace[]
   approvers     Request[]      @relation("approvers")
-  // requesters    Request[]
+  requesters    Request[]      @relation("requesters")
 }
 
 model VerificationToken {
@@ -78,8 +78,8 @@ model Request {
   status      Request_Status @default(PENDING)
   approverId  String         @db.Uuid
   approver    User           @relation(fields: [approverId], references: [id], onDelete: Cascade, name: "approvers")
-  // requesterId String    @db.Uuid
-  // requester   User      @relation(fields: [requesterId], references: [id], onDelete: Cascade)
+  requesterId String         @db.Uuid
+  requester   User           @relation(fields: [requesterId], references: [id], onDelete: Cascade, name: "requesters")
 }
 
 model Account_Type {
