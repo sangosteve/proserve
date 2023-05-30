@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { redirect, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { PriorityType } from "../../../../types";
+import { PriorityType, UserType } from "../../../../types";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { Textarea } from "../../../components/ui/textarea";
@@ -43,6 +43,7 @@ const formSchema = z.object({
   approverId: z.string({
     required_error: "Please select priority.",
   }),
+  requesterId: z.string(),
 });
 
 const CreateRequests = () => {
@@ -66,11 +67,11 @@ const CreateRequests = () => {
       description: "",
       priorityId: "",
       approverId: "",
+      requesterId: session?.user?.id,
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    values.requesterId = session?.user?.id;
     const result = await fetch("http://localhost:3000/api/request/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -193,7 +194,7 @@ const CreateRequests = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {users?.map((user) => (
+                      {users?.map((user: UserType) => (
                         <SelectItem value={user.id}>
                           <div className="flex items-center">
                             <Image

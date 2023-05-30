@@ -1,49 +1,19 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
-import { redirect, useRouter } from "next/navigation";
-import Image from "next/image";
-import { format } from "date-fns";
-import { RequestType } from "../../../types";
-import { Key } from "react";
+import React from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "../../components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../components/ui/table";
-
-const requests = () => {
-  const [requests, setRequests] = useState([]);
+import fetcher from "../../../utils/fetcher";
+import useSWR, { preload } from "swr";
+import RequestList from "../../components/RequestList";
+preload("http://localhost:3000/api/request", fetcher);
+const RequestsPage = () => {
   const router = useRouter();
-  const { data: session, status } = useSession({
-    required: true,
-    onUnauthenticated() {
-      redirect("/auth/signin");
-    },
-  });
+  const { data: requests, isLoading } = useSWR(
+    "http://localhost:3000/api/request",
+    fetcher
+  );
 
-  async function fetchRequests() {
-    const response = await fetch("http://localhost:3000/api/request", {
-      method: "GET",
-    });
-
-    const reqs = await response.json();
-    setRequests(reqs);
-    console.log(requests);
-  }
-
-  function navigateToPage(id) {
-    return router.push(`/requests/${id}`);
-  }
-
-  useEffect(() => {
-    fetchRequests();
-  }, [requests]);
+  if (isLoading) return <div>Loading...</div>;
 
   return (
     <div className="p-10 flex flex-col grow">
@@ -51,68 +21,10 @@ const requests = () => {
         <Button onClick={() => router.push("/requests/create")}>Create</Button>
       </div>
       <div className="w-[900px]">
-        <Table>
-          <TableCaption>A list of your requests.</TableCaption>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Title</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Submitted Date</TableHead>
-              <TableHead>Priority</TableHead>
-              <TableHead>Submitted By</TableHead>
-              <TableHead>Approver</TableHead>
-              <TableHead>Status</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {requests.map((request: RequestType) => (
-              <TableRow
-                className="hover:cursor-pointer hover:bg-white"
-                key={request.id}
-                onClick={() => navigateToPage(request.id)}
-              >
-                <TableCell className="font-medium">{request.title}</TableCell>
-                <TableCell>{request.description}</TableCell>
-                <TableCell>{format(new Date(request.created), "PP")}</TableCell>
-                <TableCell>{request.priority.description}</TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Image
-                      style={{
-                        objectFit: "cover",
-                        borderRadius: "50%",
-                      }}
-                      src={request.requester.image}
-                      width={24}
-                      height={24}
-                      alt="avatar"
-                    />
-                    <p>{request.requester.name}</p>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-1">
-                    <Image
-                      style={{
-                        objectFit: "cover",
-                        borderRadius: "50%",
-                      }}
-                      src={request.approver.image}
-                      width={24}
-                      height={24}
-                      alt="avatar"
-                    />
-                    <p>{request.approver.name}</p>
-                  </div>
-                </TableCell>
-                <TableCell>{request.status}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+        <RequestList requests={requests} />
       </div>
     </div>
   );
 };
 
-export default requests;
+export default RequestsPage;

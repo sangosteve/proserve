@@ -25,7 +25,8 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx",
-    "middleware.ts"
+    "middleware.ts",
+    "app/hooks/useFetch.js"
   ],
   "exclude": ["node_modules"]
 }
