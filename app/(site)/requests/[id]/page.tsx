@@ -27,6 +27,8 @@ import { Input } from "../../../components/ui/input";
 import { useForm } from "react-hook-form";
 import { Label } from "../../../components/ui/label";
 import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 const fetcher = (url) =>
   fetch(url, { method: "GET" }).then((res) => res.json());
@@ -35,6 +37,12 @@ const Update_Requests = ({ params }) => {
   const [values, setValues] = useState([]);
   const [priorityId, setPriority] = useState("");
   const [users, setUsers] = useState([]);
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated() {
+      redirect("/auth/signin");
+    },
+  });
   const {
     data: request,
     error: request_fetch_error,
@@ -90,6 +98,7 @@ const Update_Requests = ({ params }) => {
       description: values.description,
       priorityId: values.priorityId,
       approverId: values.approverId,
+      requesterId: values.requesterId,
     };
     const res = await fetch(
       `http://localhost:3000/api/request/edit/${params.id}`,
@@ -108,6 +117,7 @@ const Update_Requests = ({ params }) => {
       description: values.description,
       priorityId: values.priorityId,
       approverId: values.approverId,
+      requesterId: values.requesterId,
       status: "APPROVED",
     };
     const res = await fetch(
@@ -127,6 +137,7 @@ const Update_Requests = ({ params }) => {
       description: values.description,
       priorityId: values.priorityId,
       approverId: values.approverId,
+      requesterId: values.requesterId,
       status: "REJECTED",
     };
     const res = await fetch(

@@ -57,6 +57,7 @@ const CreateRequests = () => {
       redirect("/auth/signin");
     },
   });
+
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -69,7 +70,7 @@ const CreateRequests = () => {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    values.requesterId = "9d5b8dc9-5807-45ed-b4aa-c03f225a48c9";
+    values.requesterId = session?.user?.id;
     const result = await fetch("http://localhost:3000/api/request/create", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

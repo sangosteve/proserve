@@ -50,7 +50,7 @@ const requests = () => {
       <div>
         <Button onClick={() => router.push("/requests/create")}>Create</Button>
       </div>
-      <div className="w-[800px]">
+      <div className="w-[900px]">
         <Table>
           <TableCaption>A list of your requests.</TableCaption>
           <TableHeader>

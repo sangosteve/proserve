@@ -28,9 +28,15 @@ export const authOptions = {
       return baseUrl;
     },
     async jwt({ token, user, account, profile, isNewUser }) {
-      if (isNewUser) token.isNewUser = isNewUser;
-
       return token;
+    },
+    async session({ session, token, user }) {
+      // Send properties to the client, like an access_token and user id from a provider.
+      session.accessToken = token.accessToken;
+      session.user.id = token.sub;
+
+      console.log("session:", session);
+      return session;
     },
   },
 };
