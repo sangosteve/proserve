@@ -45,6 +45,7 @@ model User {
   owners        Workspace[]
   approvers     Request[]      @relation("approvers")
   requesters    Request[]      @relation("requesters")
+  assignees     Request[]      @relation("assignee")
 }
 
 model VerificationToken {
@@ -80,6 +81,8 @@ model Request {
   approver    User           @relation(fields: [approverId], references: [id], onDelete: Cascade, name: "approvers")
   requesterId String         @db.Uuid
   requester   User           @relation(fields: [requesterId], references: [id], onDelete: Cascade, name: "requesters")
+  assigneeId  String?        @db.Uuid
+  assignee    User?          @relation(fields: [assigneeId], references: [id], onDelete: Cascade, name: "assignee")
 }
 
 model Account_Type {

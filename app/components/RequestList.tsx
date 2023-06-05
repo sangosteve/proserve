@@ -11,8 +11,13 @@ import {
   TableRow,
 } from "./ui/table";
 import { RequestType } from "../../types";
+import toTitleCase from "../../utils/toTitleCase";
+import { Badge } from "../components/ui/badge";
+import { cn } from "../../lib/utils";
+import { badgeVariants } from "../components/ui/badge";
 const RequestList = ({ requests }) => {
   const router = useRouter();
+
   function navigateToPage(id) {
     return router.push(`/requests/${id}`);
   }
@@ -31,7 +36,7 @@ const RequestList = ({ requests }) => {
         </TableRow>
       </TableHeader>
       <TableBody>
-        {requests.map((request: RequestType) => (
+        {requests?.map((request: RequestType) => (
           <TableRow
             className="hover:cursor-pointer hover:bg-white"
             key={request.id}
@@ -40,7 +45,19 @@ const RequestList = ({ requests }) => {
             <TableCell className="font-medium">{request.title}</TableCell>
             <TableCell>{request.description}</TableCell>
             <TableCell>{format(new Date(request.created), "PP")}</TableCell>
-            <TableCell>{request.priority.description}</TableCell>
+            <TableCell>
+              <Badge
+                variant={
+                  request.priority.description === "medium"
+                    ? "warning"
+                    : request.priority.description === "high"
+                    ? "error"
+                    : "default"
+                }
+              >
+                {request.priority.description?.toUpperCase()}
+              </Badge>
+            </TableCell>
             <TableCell>
               <div className="flex items-center gap-1">
                 <Image
@@ -71,7 +88,7 @@ const RequestList = ({ requests }) => {
                 <p>{request.approver.name}</p>
               </div>
             </TableCell>
-            <TableCell>{request.status}</TableCell>
+            <TableCell>{toTitleCase(request.status)}</TableCell>
           </TableRow>
         ))}
       </TableBody>

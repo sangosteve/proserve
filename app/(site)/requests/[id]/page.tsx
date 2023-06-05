@@ -36,6 +36,8 @@ const fetcher = (url) =>
 const Update_Requests = ({ params }) => {
   const [values, setValues] = useState([]);
   const [priorityId, setPriority] = useState("");
+  const [approverId, setApproverId] = useState("");
+  const [assigneeId, setAssigneeId] = useState("");
   const [users, setUsers] = useState([]);
   const { data: session, status } = useSession({
     required: true,
@@ -61,6 +63,7 @@ const Update_Requests = ({ params }) => {
     }));
   };
 
+  console.log("request:", request);
   useEffect(() => {
     async function fetchUsers() {
       const res = await fetch("http://localhost:3000/api/user", {
@@ -85,21 +88,17 @@ const Update_Requests = ({ params }) => {
     fetchUsers();
   }, []);
 
-  console.log("priorityId:", priorityId);
-  const onSubmit = (e) => {
-    values.priorityId = priorityId;
-    e.preventDefault();
-    console.log("onSubmit:", values);
-  };
-
-  const saveWithoutUpdating = async () => {
+  const saveWithoutApproving = async () => {
     const updatedValues = {
       title: values.title,
       description: values.description,
-      priorityId: values.priorityId,
-      approverId: values.approverId,
+      priorityId: priorityId ? priorityId : values.priorityId,
+      approverId: approverId ? approverId : values.approverId,
+      assigneeId: assigneeId ? assigneeId : values.assigneeId,
       requesterId: values.requesterId,
     };
+    console.log("values:", values);
+    console.log("updated values:", updatedValues);
     const res = await fetch(
       `http://localhost:3000/api/request/edit/${params.id}`,
       {
@@ -115,8 +114,9 @@ const Update_Requests = ({ params }) => {
     const updatedValues = {
       title: values.title,
       description: values.description,
-      priorityId: values.priorityId,
-      approverId: values.approverId,
+      priorityId: priorityId ? priorityId : values.priorityId,
+      approverId: approverId ? approverId : values.approverId,
+      assigneeId: assigneeId ? assigneeId : values.assigneeId,
       requesterId: values.requesterId,
       status: "APPROVED",
     };
@@ -135,8 +135,9 @@ const Update_Requests = ({ params }) => {
     const updatedValues = {
       title: values.title,
       description: values.description,
-      priorityId: values.priorityId,
-      approverId: values.approverId,
+      priorityId: priorityId ? priorityId : values.priorityId,
+      approverId: approverId ? approverId : values.approverId,
+      assigneeId: assigneeId ? assigneeId : values.assigneeId,
       requesterId: values.requesterId,
       status: "REJECTED",
     };
@@ -148,13 +149,11 @@ const Update_Requests = ({ params }) => {
         headers: { "Content-Type": "application/json" },
       }
     );
-
-    console.log(res);
   };
   return (
     <div className="p-10 flex flex-col grow">
       <div className="w-[600px]">
-        <form onSubmit={onSubmit}>
+        <form>
           <div className="w-full flex  items-center justify-between">
             <div className="w-full px-2 flex flex-col items-start justify-start">
               <Label htmlFor="name">Title</Label>
@@ -163,6 +162,7 @@ const Update_Requests = ({ params }) => {
                 className="mt-1"
                 value={values.title}
                 onChange={handleChange}
+                disabled={request?.status === "APPROVED"}
               />
             </div>
           </div>
@@ -174,6 +174,7 @@ const Update_Requests = ({ params }) => {
                 name="description"
                 value={values.description}
                 onChange={handleChange}
+                disabled={request?.status === "APPROVED"}
               />
             </div>
           </div>
@@ -183,6 +184,7 @@ const Update_Requests = ({ params }) => {
               <Select
                 name="priority"
                 onValueChange={(value) => setPriority(value)}
+                disabled={request?.status === "APPROVED"}
               >
                 <SelectTrigger name="priority">
                   <SelectValue placeholder={request?.priority?.description} />
@@ -190,11 +192,7 @@ const Update_Requests = ({ params }) => {
 
                 <SelectContent>
                   {priorities?.map((priority) => (
-                    <SelectItem
-                      value={priority.id}
-                      defaultValue={request?.priority?.id}
-                      defaultChecked={true}
-                    >
+                    <SelectItem value={priority.id}>
                       {priority.description}
                     </SelectItem>
                   ))}
@@ -206,10 +204,11 @@ const Update_Requests = ({ params }) => {
             <div className="w-full px-2 flex  flex-col items-start justify-start ">
               <Label htmlFor="name">Approver</Label>
               <Select
-                name="priority"
-                onValueChange={(value) => setPriority(value)}
+                name="approver"
+                onValueChange={(value) => setApproverId(value)}
+                disabled={request?.status === "APPROVED"}
               >
-                <SelectTrigger name="priority">
+                <SelectTrigger name="approver">
                   <SelectValue placeholder={request?.approver.name} />
                 </SelectTrigger>
 
@@ -235,16 +234,63 @@ const Update_Requests = ({ params }) => {
               </Select>
             </div>
           </div>
-          <div className="flex items-center justify-between mt-8">
-            <Button variant={"destructive"} onClick={rejectRequest}>
-              Reject Request
-            </Button>
-            <Button variant={"outline"} onClick={saveWithoutUpdating}>
-              Save Without Approving
-            </Button>
-            <Button onClick={approveRequest}>Approve Request</Button>
+          <div className="w-full flex  items-center justify-between mt-4">
+            <div className="w-full px-2 flex  flex-col items-start justify-start ">
+              <Label htmlFor="name">Assignee</Label>
+              <Select
+                name="approver"
+                onValueChange={(value) => setAssigneeId(value)}
+                disabled={request?.status === "APPROVED"}
+              >
+                <SelectTrigger name="approver">
+                  <SelectValue placeholder={request?.assignee?.name} />
+                </SelectTrigger>
+
+                <SelectContent>
+                  {users?.map((user) => (
+                    <SelectItem value={user.id}>
+                      <div className="flex items-center">
+                        <Image
+                          style={{
+                            objectFit: "cover",
+                            borderRadius: "50%",
+                          }}
+                          src={user?.image}
+                          width={24}
+                          height={24}
+                          alt="avatar"
+                        />
+                        {user.name}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </form>
+        <div className="flex items-center justify-between mt-8">
+          <Button
+            disabled={request?.status === "APPROVED"}
+            variant={"destructive"}
+            onClick={rejectRequest}
+          >
+            Reject Request
+          </Button>
+          <Button
+            disabled={request?.status === "APPROVED"}
+            variant={"outline"}
+            onClick={saveWithoutApproving}
+          >
+            Save Without Approving
+          </Button>
+          <Button
+            disabled={request?.status === "APPROVED"}
+            onClick={approveRequest}
+          >
+            Approve Request
+          </Button>
+        </div>
       </div>
     </div>
   );
